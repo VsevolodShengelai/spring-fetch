@@ -1,11 +1,16 @@
-package ru.standardsolutions.dto;
+package ru.standardsolutions.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import ru.standardsolutions.FetchSpecification;
+import ru.standardsolutions.SortDirection;
 
 import java.util.List;
 
@@ -94,5 +99,9 @@ public class FetchRequest {
 
     public Pageable toPageable() {
         return PageRequest.of(page.getNumber(), page.getSize());
+    }
+
+    public <T> Specification<T> toSpecification() {
+        return new FetchSpecification<>(this);
     }
 }

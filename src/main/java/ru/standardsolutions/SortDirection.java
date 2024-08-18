@@ -1,8 +1,9 @@
-package ru.standardsolutions.dto;
+package ru.standardsolutions;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Order;
 import jakarta.persistence.criteria.Root;
+import ru.standardsolutions.request.FetchRequest;
 
 public enum SortDirection {
     ASC {
