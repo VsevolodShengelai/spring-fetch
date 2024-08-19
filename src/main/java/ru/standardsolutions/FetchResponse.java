@@ -2,10 +2,12 @@ package ru.standardsolutions;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class FetchResponse<T> {
 
-    private final T data;
+    private final List<T> content;
 
     private final Paging paging;
 
@@ -31,6 +33,16 @@ public class FetchResponse<T> {
          * Индекс первого ресурса на странице, начинается с 1.
          */
         private final Integer offset;
+
+        /**
+         * Признак первой страницы.
+         */
+        private final Boolean first;
+
+        /**
+         * Признак последней страницы.
+         */
+        private final Boolean last;
 
         /**
          * Общее количество страниц.

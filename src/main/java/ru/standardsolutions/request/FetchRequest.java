@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.ToString;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
 import ru.standardsolutions.FetchSpecification;
 import ru.standardsolutions.SortDirection;
@@ -19,14 +20,14 @@ import java.util.List;
 @EqualsAndHashCode
 public class FetchRequest {
 
-    private final List<Filter> filters;
+    private final List<FilterRequest> filters;
 
     private final List<Sort> sort;
 
     private final Page page;
 
     @JsonCreator
-    public FetchRequest(@JsonProperty("filters") List<Filter> filters,
+    public FetchRequest(@JsonProperty("filters") List<FilterRequest> filters,
                         @JsonProperty("sort") List<Sort> sort,
                         @JsonProperty("page") Page page) {
         this.filters = filters;
@@ -72,33 +73,10 @@ public class FetchRequest {
         }
     }
 
-    @Getter
-    @ToString
-    @EqualsAndHashCode
-    public static class Filter {
-
-        private final String field;
-
-        private final Object value;
-
-        private final String operator;
-
-        private final List<Filter> filters;
-
-        @JsonCreator
-        public Filter(@JsonProperty("field") String field,
-                      @JsonProperty("value") Object value,
-                      @JsonProperty("operator") String operator,
-                      @JsonProperty("filters") List<Filter> filters) {
-            this.field = field;
-            this.value = value;
-            this.operator = operator;
-            this.filters = filters;
-        }
-    }
-
     public Pageable toPageable() {
-        return PageRequest.of(page.getNumber(), page.getSize());
+        Order id1 = Order.desc("id");
+        org.springframework.data.domain.Sort id = org.springframework.data.domain.Sort.by(id1);
+        return PageRequest.of(page.getNumber(), page.getSize(), id);
     }
 
     public <T> Specification<T> toSpecification() {
