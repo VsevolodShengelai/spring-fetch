@@ -15,20 +15,20 @@ public class FilterRequest {
 
     private final String field;
 
-    private final Object value;
-
     private final String operator;
+
+    private final String value;
 
     private final List<FilterRequest> filters;
 
     @JsonCreator
     public FilterRequest(@JsonProperty("field") String field,
-                         @JsonProperty("value") Object value,
                          @JsonProperty("operator") String operator,
+                         @JsonProperty("value") String value,
                          @JsonProperty("filters") List<FilterRequest> filters) {
         this.field = field;
-        this.value = value;
         this.operator = operator;
+        this.value = value;
         this.filters = filters;
     }
 }
