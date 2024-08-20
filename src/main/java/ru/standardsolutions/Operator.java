@@ -1,6 +1,10 @@
 package ru.standardsolutions;
 
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.extern.slf4j.Slf4j;
 import ru.standardsolutions.request.FilterRequest;
 
@@ -10,9 +14,15 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Набор поддерживаемых операторов и создания предиката.
+ */
 @Slf4j
 public enum Operator {
 
+    /**
+     * Оператор сравнения.
+     */
     EQUAL(":") {
         public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
             Path<?> fieldPath = getFieldPath(root, filter.getField());
@@ -20,6 +30,9 @@ public enum Operator {
         }
     },
 
+    /**
+     * Оператор поиска по строке.
+     */
     LIKE("like") {
         public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
             Path<?> fieldPath = getFieldPath(root, filter.getField());
@@ -27,6 +40,9 @@ public enum Operator {
         }
     },
 
+    /**
+     * Больше или равно.
+     */
     GREATER_OR_EQUAL(">:") {
         @SuppressWarnings({"rawtypes", "unchecked"})
         public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
@@ -36,6 +52,9 @@ public enum Operator {
         }
     },
 
+    /**
+     * Меньше или равно.
+     */
     LESS_OR_EQUAL("<:") {
         @SuppressWarnings({"rawtypes", "unchecked"})
         public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
@@ -45,12 +64,18 @@ public enum Operator {
         }
     },
 
+    /**
+     * Логическое И.
+     */
     AND("AND") {
         public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
             return null;
         }
     },
 
+    /**
+     * Логическое ИЛИ.
+     */
     OR("OR") {
         public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
             return null;

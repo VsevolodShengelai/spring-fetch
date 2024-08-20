@@ -13,8 +13,15 @@ import java.util.List;
 
 import static ru.standardsolutions.Operator.*;
 
+/**
+ * Спецификация для набора фильтров.
+ * @param <T>
+ */
 public class FetchSpecification<T> implements Specification<T> {
 
+    /**
+     * Запрос с фильтрацией, сортировкой и пагинацией.
+     */
     private final FetchRequest fetchRequest;
 
     public FetchSpecification(FetchRequest fetchRequest) {

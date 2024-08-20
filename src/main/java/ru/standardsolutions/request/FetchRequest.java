@@ -20,6 +20,12 @@ import java.util.List;
 
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
+/**
+ * Запрос на получение данных с фильтрацией, сортировкой и пагинацией.
+ * <p>
+ * Если параметры сортировки и фльтрации не переданы, то не применяются.
+ * По умолчанию пагинация начинается со страницы 1, с размером страницы 100.
+ */
 @Getter
 @ToString
 @EqualsAndHashCode
@@ -44,9 +50,9 @@ public class FetchRequest {
     public FetchRequest(@JsonProperty("filters") List<FilterRequest> filters,
                         @JsonProperty("sort") List<SortRequest> sort,
                         @JsonProperty("page") ru.standardsolutions.request.PageRequest page) {
-        this.filters = filters;
-        this.sort = sort;
-        this.page = page;
+        this.filters = filters == null ? List.of() : filters;
+        this.sort = sort == null ? List.of() : sort;
+        this.page = page == null ? new PageRequest(1, 100) : page;
     }
 
     @JsonIgnore
@@ -62,7 +68,7 @@ public class FetchRequest {
             Order order = direction == ASC ? Order.asc(sortPart.getField()) : Order.desc(sortPart.getField());
             orders.add(order);
         }
-        return org.springframework.data.domain.PageRequest.of(pageNumber, pageSize, Sort.by(orders));
+        return org.springframework.data.domain.PageRequest.of(pageNumber - 1, pageSize, Sort.by(orders));
     }
 
     @JsonIgnore

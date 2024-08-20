@@ -5,6 +5,12 @@ import ru.standardsolutions.request.FilterRequest;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Парсер запроса по строке.
+ * <p>
+ * Предоставляет возможность получить объекты параметров фильтрации, сортировки
+ * и пагинации.
+ */
 public class Parser {
 
     public static List<FilterRequest> parseFilter(String filterString) {

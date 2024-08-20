@@ -12,6 +12,9 @@ import lombok.ToString;
 
 import java.util.List;
 
+/**
+ * Параметры фильтрации.
+ */
 @Getter
 @ToString
 @EqualsAndHashCode
@@ -33,6 +36,7 @@ public class FilterRequest {
 
     @Valid
     @Size(max = 255, message = "Массив не может содержать более {max} элементов")
+    @Schema(description = "Набор вложенных фильтров")
     private final List<FilterRequest> filters;
 
     @JsonCreator
