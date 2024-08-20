@@ -1,28 +1,44 @@
 package ru.standardsolutions.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
 import ru.standardsolutions.FetchSpecification;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static org.springframework.data.domain.Sort.Direction.ASC;
 
 @Getter
 @ToString
 @EqualsAndHashCode
+@Schema(description = "Запрос на получение данных с фильтрацией, сортировкой и пагинацией")
 public class FetchRequest {
 
+    @Valid
+    @Size(max = 255)
+    @Schema(description = "Список фильтров")
     private final List<FilterRequest> filters;
 
+    @Valid
+    @Size(max = 255)
+    @Schema(description = "Параметры сортировки")
     private final List<SortRequest> sort;
 
-    private final ru.standardsolutions.request.PageRequest page;
+    @Valid
+    @Schema(description = "Параметры страницы")
+    private final PageRequest page;
 
     @JsonCreator
     public FetchRequest(@JsonProperty("filters") List<FilterRequest> filters,
@@ -33,12 +49,23 @@ public class FetchRequest {
         this.page = page;
     }
 
+    @JsonIgnore
     public Pageable toPageable() {
-        Order id1 = Order.desc("id");
-        org.springframework.data.domain.Sort id = org.springframework.data.domain.Sort.by(id1);
-        return PageRequest.of(page.getNumber(), page.getSize(), id);
+        return toPageable(page.getNumber(), page.getSize());
     }
 
+    @JsonIgnore
+    public Pageable toPageable(Integer pageNumber, Integer pageSize) {
+        List<Order> orders = new ArrayList<>();
+        for (SortRequest sortPart : sort) {
+            Sort.Direction direction = Sort.Direction.fromString(sortPart.getDirection());
+            Order order = direction == ASC ? Order.asc(sortPart.getField()) : Order.desc(sortPart.getField());
+            orders.add(order);
+        }
+        return org.springframework.data.domain.PageRequest.of(pageNumber, pageSize, Sort.by(orders));
+    }
+
+    @JsonIgnore
     public <T> Specification<T> toSpecification() {
         return new FetchSpecification<>(this);
     }

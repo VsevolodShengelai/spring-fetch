@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import ru.standardsolutions.SortDirection;
 
 @Getter
 @ToString
@@ -17,11 +16,11 @@ public class SortRequest {
     private final String field;
 
     @NotNull
-    private final SortDirection direction;
+    private final String direction;
 
     @JsonCreator
     public SortRequest(@JsonProperty("field") String field,
-                       @JsonProperty("direction") SortDirection direction) {
+                       @JsonProperty("direction") String direction) {
         this.field = field;
         this.direction = direction;
     }

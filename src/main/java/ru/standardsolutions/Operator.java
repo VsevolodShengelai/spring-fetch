@@ -1,84 +1,77 @@
 package ru.standardsolutions;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.Path;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
 import ru.standardsolutions.request.FilterRequest;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 public enum Operator {
 
     EQUAL(":") {
-        public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
+        public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
             Path<?> fieldPath = getFieldPath(root, filter.getField());
             return cb.equal(fieldPath, filter.getValue());
         }
     },
 
     LIKE("like") {
-        public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
+        public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
             Path<?> fieldPath = getFieldPath(root, filter.getField());
             return cb.like(fieldPath.as(String.class), filter.getValue());
         }
     },
 
     GREATER_OR_EQUAL(">:") {
-        public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
             Path<?> fieldPath = getFieldPath(root, filter.getField());
-            Class<?> fieldType = fieldPath.getJavaType();
-            if (fieldType.equals(Integer.class) || fieldType.equals(int.class)) {
-                Integer intValue = Integer.parseInt(filter.getValue());
-                return cb.greaterThanOrEqualTo(fieldPath.as(Integer.class), intValue);
-            } else if (fieldType.equals(Long.class) || fieldType.equals(long.class)) {
-                Long longValue = Long.parseLong(filter.getValue());
-                return cb.greaterThanOrEqualTo(fieldPath.as(Long.class), longValue);
-            } else if (fieldType.equals(Double.class) || fieldType.equals(double.class)) {
-                Double doubleValue = Double.parseDouble(filter.getValue());
-                return cb.greaterThanOrEqualTo(fieldPath.as(Double.class), doubleValue);
-            } else {
-                String errorMessage = String.format("Неподдерживаемый тип %s для операции %s", fieldType, ">:");
-                throw new IllegalArgumentException(errorMessage);
-            }
+            Comparable comparableValue = Operator.castToComparable(fieldPath.getJavaType(), filter.getValue());
+            return cb.greaterThanOrEqualTo((Expression<Comparable>) fieldPath, comparableValue);
         }
     },
 
     LESS_OR_EQUAL("<:") {
-        public <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
             Path<?> fieldPath = getFieldPath(root, filter.getField());
-            Class<?> fieldType = fieldPath.getJavaType();
-            if (fieldType.equals(Integer.class) || fieldType.equals(int.class)) {
-                Integer intValue = Integer.parseInt(filter.getValue());
-                return cb.lessThanOrEqualTo(fieldPath.as(Integer.class), intValue);
-            } else if (fieldType.equals(Long.class) || fieldType.equals(long.class)) {
-                Long longValue = Long.parseLong(filter.getValue());
-                return cb.lessThanOrEqualTo(fieldPath.as(Long.class), longValue);
-            } else if (fieldType.equals(Double.class) || fieldType.equals(double.class)) {
-                Double doubleValue = Double.parseDouble(filter.getValue());
-                return cb.lessThanOrEqualTo(fieldPath.as(Double.class), doubleValue);
-            } else {
-                String errorMessage = String.format("Неподдерживаемый тип %s для операции %s", fieldType, ">:");
-                throw new IllegalArgumentException(errorMessage);
-            }
+            Comparable comparableValue = Operator.castToComparable(fieldPath.getJavaType(), filter.getValue());
+            return cb.lessThanOrEqualTo((Expression<Comparable>) fieldPath, comparableValue);
+        }
+    },
+
+    AND("AND") {
+        public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
+            return null;
+        }
+    },
+
+    OR("OR") {
+        public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
+            return null;
         }
     };
 
-    private final String view;
+    private final String strValue;
 
-    Operator(String view) {
-        this.view = view;
+    Operator(String strValue) {
+        this.strValue = strValue;
     }
 
-    public abstract <T> Predicate build(Root<T> root, CriteriaBuilder cb, FilterRequest request);
+    public abstract <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest request);
 
-    public static Operator fromString(String view) {
+    public static Operator fromString(String strValue) {
         for (Operator op : Operator.values()) {
-            if (view.equalsIgnoreCase(op.view)) {
+            if (strValue.equalsIgnoreCase(op.strValue)) {
                 return op;
             }
         }
-        throw new IllegalArgumentException("Неподдерживаемый оператор: " + view);
+        throw new IllegalArgumentException("Неподдерживаемый оператор: " + strValue);
     }
 
     private static Path<?> getFieldPath(Root<?> root, String fieldName) {
@@ -88,5 +81,32 @@ public enum Operator {
             path = path.get(part);
         }
         return path;
+    }
+
+    private static Comparable<?> castToComparable(Class<?> fieldType, String value) {
+        if (fieldType == BigDecimal.class) {
+            return new BigDecimal(value);
+        } else if (fieldType == BigInteger.class) {
+            return new BigInteger(value);
+        } else if (fieldType == Boolean.class) {
+            return Boolean.parseBoolean(value);
+        } else if (fieldType == Double.class) {
+            return Double.parseDouble(value);
+        } else if (fieldType == Float.class) {
+            return Float.parseFloat(value);
+        } else if (fieldType == Integer.class) {
+            return Integer.parseInt(value);
+        } else if (fieldType == Long.class) {
+            return Long.parseLong(value);
+        } else if (fieldType == Short.class) {
+            return Short.parseShort(value);
+        } else if (fieldType == LocalDate.class) {
+            return LocalDateTime.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        } else if (fieldType == LocalDateTime.class) {
+            return LocalDateTime.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        } else if (fieldType == String.class) {
+            return value;
+        }
+        throw new IllegalArgumentException("Неподдерживаемый тип данных для операции сравнения: " + fieldType);
     }
 }
