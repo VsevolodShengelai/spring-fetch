@@ -13,6 +13,8 @@ import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Набор поддерживаемых операторов и создания предиката.
@@ -31,12 +33,14 @@ public enum Operator {
     },
 
     /**
-     * Оператор поиска по строке.
+     * Больше.
      */
-    LIKE("like") {
+    GREATER(">") {
+        @SuppressWarnings({"rawtypes", "unchecked"})
         public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
             Path<?> fieldPath = getFieldPath(root, filter.getField());
-            return cb.like(fieldPath.as(String.class), filter.getValue());
+            Comparable comparableValue = Operator.castToComparable(fieldPath.getJavaType(), filter.getValue());
+            return cb.greaterThan((Expression<Comparable>) fieldPath, comparableValue);
         }
     },
 
@@ -53,6 +57,18 @@ public enum Operator {
     },
 
     /**
+     * Меньше.
+     */
+    LESS("<") {
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
+            Path<?> fieldPath = getFieldPath(root, filter.getField());
+            Comparable comparableValue = Operator.castToComparable(fieldPath.getJavaType(), filter.getValue());
+            return cb.lessThan((Expression<Comparable>) fieldPath, comparableValue);
+        }
+    },
+
+    /**
      * Меньше или равно.
      */
     LESS_OR_EQUAL("<:") {
@@ -61,6 +77,30 @@ public enum Operator {
             Path<?> fieldPath = getFieldPath(root, filter.getField());
             Comparable comparableValue = Operator.castToComparable(fieldPath.getJavaType(), filter.getValue());
             return cb.lessThanOrEqualTo((Expression<Comparable>) fieldPath, comparableValue);
+        }
+    },
+
+    /**
+     * Оператор поиска по строке.
+     */
+    LIKE("like") {
+        public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
+            Path<?> fieldPath = getFieldPath(root, filter.getField());
+            return cb.like(fieldPath.as(String.class), filter.getValue());
+        }
+    },
+
+    /**
+     * Оператор поиска по строке.
+     */
+    IN("in") {
+        public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
+            Path<?> fieldPath = getFieldPath(root, filter.getField());
+            String[] rawValues = filter.getValue().split(",");
+            List<? extends Comparable<?>> valueList = Arrays.stream(rawValues)
+                    .map(val -> castToComparable(fieldPath.getJavaType(), val.trim()))
+                    .toList();
+            return fieldPath.in(valueList);
         }
     },
 
