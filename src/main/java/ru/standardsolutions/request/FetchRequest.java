@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.jpa.domain.Specification;
+import ru.standardsolutions.FetchRequestParser;
 import ru.standardsolutions.FetchSpecification;
 
 import java.util.ArrayList;
@@ -53,6 +54,12 @@ public class FetchRequest {
         this.filters = filters == null ? List.of() : filters;
         this.sort = sort == null ? List.of() : sort;
         this.page = page == null ? new PageRequest(1, 100) : page;
+    }
+
+    public FetchRequest(String filters, String sort, Integer pageNumber, Integer pageSize) {
+        this.filters = filters == null ? List.of() : FetchRequestParser.parseFilter(filters);
+        this.sort = sort == null ? List.of() : FetchRequestParser.parseSort(sort);
+        this.page = new PageRequest(pageNumber == null ? 1 : pageNumber, pageSize == null ? 100 : pageSize);
     }
 
     @JsonIgnore

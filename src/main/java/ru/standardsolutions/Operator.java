@@ -91,6 +91,16 @@ public enum Operator {
     },
 
     /**
+     * Оператор поиска по строке нечуствительный к регистру.
+     */
+    ILIKE("ilike") {
+        public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
+            Path<?> fieldPath = getFieldPath(root, filter.getField());
+            return cb.like(cb.lower(fieldPath.as(String.class)), filter.getValue().toLowerCase());
+        }
+    },
+
+    /**
      * Оператор поиска по строке.
      */
     IN("in") {
