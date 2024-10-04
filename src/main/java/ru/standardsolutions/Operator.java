@@ -1,10 +1,6 @@
 package ru.standardsolutions;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.Expression;
-import jakarta.persistence.criteria.Path;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import lombok.extern.slf4j.Slf4j;
 import ru.standardsolutions.request.FilterRequest;
 
@@ -15,6 +11,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Набор поддерживаемых операторов и создания предиката.
@@ -28,6 +25,9 @@ public enum Operator {
     EQUAL(":") {
         public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
             Path<?> fieldPath = getFieldPath(root, filter.getField());
+            if (fieldPath.getJavaType() == UUID.class) {
+                return cb.equal(fieldPath, UUID.fromString(filter.getValue()));
+            }
             return cb.equal(fieldPath, filter.getValue());
         }
     },
