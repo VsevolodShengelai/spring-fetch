@@ -33,6 +33,19 @@ public enum Operator {
     },
 
     /**
+     * Оператор не равно.
+     */
+    NOT_EQUAL("!:") {
+        public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
+            Path<?> fieldPath = getFieldPath(root, filter.getField());
+            if (fieldPath.getJavaType() == UUID.class) {
+                return cb.notEqual(fieldPath, UUID.fromString(filter.getValue()));
+            }
+            return cb.notEqual(fieldPath, filter.getValue());
+        }
+    },
+
+    /**
      * Больше.
      */
     GREATER(">") {
@@ -101,7 +114,7 @@ public enum Operator {
     },
 
     /**
-     * Оператор поиска по строке.
+     * Оператор вхождения в список значений.
      */
     IN("in") {
         public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
@@ -111,6 +124,20 @@ public enum Operator {
                     .map(val -> castToComparable(fieldPath.getJavaType(), val.trim()))
                     .toList();
             return fieldPath.in(valueList);
+        }
+    },
+
+    /**
+     * Оператор отрицания вхождения в список значений.
+     */
+    NOT_IN("not in") {
+        public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
+            Path<?> fieldPath = getFieldPath(root, filter.getField());
+            String[] rawValues = filter.getValue().split(",");
+            List<? extends Comparable<?>> valueList = Arrays.stream(rawValues)
+                    .map(val -> castToComparable(fieldPath.getJavaType(), val.trim()))
+                    .toList();
+            return fieldPath.in(valueList).not();
         }
     },
 

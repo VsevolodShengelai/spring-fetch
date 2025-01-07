@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public class FetchRequestParser {
 
     private static final String FILTER_PATTERN =
-            "(?<field>[a-zA-Z_][a-zA-Z_0-9]*)\\s*(?<operator><:|>:|<|>|:|like|in)\\s*(?<value>\"[^\"]*\"|[^\\s,]+)";
+            "(?<field>[a-zA-Z_][a-zA-Z_0-9]*)\\s*(?<operator><:|>:|<|>|:|!:|like|in|not in)\\s*(?<value>\"[^\"]*\"|[^\\s,]+)";
 
     private static final String LOGICAL_OPERATOR_PATTERN = "and|or";
 
@@ -36,7 +36,7 @@ public class FetchRequestParser {
             String field = matcher.group("field");
             String operator = matcher.group("operator");
             String value = matcher.group("value").replace("\"", "");
-            if (operator.equals("in")) {
+            if (operator.equals("in") || operator.equals("not in")) {
                 value = value.replace("(", "").replace(")", ""); // Удаляем скобки
             }
             FilterRequest filterRequest = new FilterRequest(field, operator, value, List.of());
