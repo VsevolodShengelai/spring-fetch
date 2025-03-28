@@ -208,6 +208,8 @@ public enum Operator {
             return LocalDateTime.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         } else if (fieldType == String.class) {
             return value;
+        } else if (fieldType == UUID.class) {
+            return UUID.fromString(value);
         }
         throw new IllegalArgumentException("Неподдерживаемый тип данных для операции сравнения: " + fieldType);
     }
