@@ -1,5 +1,6 @@
 package ru.standardsolutions;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -78,5 +79,19 @@ public class FetchResponse<T> {
         this.last = page.isLast();
         this.totalPages = page.getTotalPages();
         this.totalElements = page.getTotalElements();
+    }
+
+    @JsonCreator
+    public FetchResponse(List<T> content, Integer pageNumber, Integer pageSize, Integer numberOfElements, Long offset,
+                         Boolean first, Boolean last, Integer totalPages, Long totalElements) {
+        this.content = content;
+        this.pageNumber = pageNumber;
+        this.pageSize = pageSize;
+        this.numberOfElements = numberOfElements;
+        this.offset = offset;
+        this.first = first;
+        this.last = last;
+        this.totalPages = totalPages;
+        this.totalElements = totalElements;
     }
 }
