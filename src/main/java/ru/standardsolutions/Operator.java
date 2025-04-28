@@ -179,8 +179,12 @@ public enum Operator {
     private static Path<?> getFieldPath(Root<?> root, String fieldName) {
         String[] parts = fieldName.split("\\.");
         Path<?> path = root;
-        for (String part : parts) {
-            path = path.get(part);
+        for (int i = 0; i < parts.length; i++) {
+            if (i == 0 && parts.length > 1) {
+                path = root.join(parts[i], JoinType.LEFT);
+            } else {
+                path = path.get(parts[i]);
+            }
         }
         return path;
     }
