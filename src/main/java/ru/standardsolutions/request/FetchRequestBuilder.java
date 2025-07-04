@@ -1,5 +1,8 @@
 package ru.standardsolutions.request;
 
+import ru.standardsolutions.dto.generic.filters.types.Period;
+
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,12 +13,6 @@ public class FetchRequestBuilder {
     private List<FilterRequest> filters = new ArrayList<>();
     private List<SortRequest> sort = new ArrayList<>();
     private PageRequest page;
-
-    /**
-     * Создает новый экземпляр {@link FetchRequestBuilder}.
-     */
-    public FetchRequestBuilder() {
-    }
 
     /**
      * Добавляет фильтр в запрос.
@@ -123,6 +120,36 @@ public class FetchRequestBuilder {
      */
     public FetchRequestBuilder like(String field, String value) {
         return filter(field, "like", value);
+    }
+
+    /**
+     * Добавляет фильтр поиска по шаблону нечуствительный к регистру.
+     *
+     * @param field поле для фильтрации
+     * @param value шаблон для поиска
+     * @return этот экземпляр построителя
+     */
+    public FetchRequestBuilder iLike(String field, String value) {
+        return filter(field, "like", value);
+    }
+
+    /**
+     * Добавляет фильтр по периоду, границы включены.
+     *
+     * @param field поле для фильтрации
+     * @param value период.
+     * @return этот экземпляр построителя
+     */
+    public FetchRequestBuilder period(String field, Period value) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        FetchRequestBuilder periodBuilder = this;
+        if (value != null && value.getFrom() != null) {
+            periodBuilder = filter(field, ">:", value.getFrom().format(formatter));
+        }
+        if (value != null && value.getTo() != null) {
+            periodBuilder = filter(field, "<:", value.getTo().format(formatter));
+        }
+        return periodBuilder;
     }
 
     /**
