@@ -130,7 +130,7 @@ public class FetchRequestBuilder {
      * @return этот экземпляр построителя
      */
     public FetchRequestBuilder iLike(String field, String value) {
-        return filter(field, "like", value);
+        return filter(field, "ilike", value);
     }
 
     /**
