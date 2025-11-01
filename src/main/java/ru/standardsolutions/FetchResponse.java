@@ -33,7 +33,7 @@ public class FetchResponse<T> {
 
     @NotNull
     @Min(value = 0, message = "Размер страницы не может быть меньше {value}")
-    @Max(value = 1000, message = "Размер страницы не может быть больше {value}")
+    @Max(value = 100, message = "Размер страницы не может быть больше {value}")
     @Schema(description = "Размер страницы")
     private final Integer pageSize;
 

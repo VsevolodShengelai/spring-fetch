@@ -23,12 +23,11 @@ public enum Operator {
      * Оператор сравнения.
      */
     EQUAL(":") {
+        @SuppressWarnings({"rawtypes"})
         public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
             Path<?> fieldPath = getFieldPath(root, filter.getField());
-            if (fieldPath.getJavaType() == UUID.class) {
-                return cb.equal(fieldPath, UUID.fromString(filter.getValue()));
-            }
-            return cb.equal(fieldPath, filter.getValue());
+            Comparable comparableValue = Operator.castToComparable(fieldPath.getJavaType(), filter.getValue());
+            return cb.equal(fieldPath, comparableValue);
         }
     },
 
@@ -36,12 +35,11 @@ public enum Operator {
      * Оператор не равно.
      */
     NOT_EQUAL("!:") {
+        @SuppressWarnings({"rawtypes"})
         public <T> Predicate createPredicate(Root<T> root, CriteriaBuilder cb, FilterRequest filter) {
             Path<?> fieldPath = getFieldPath(root, filter.getField());
-            if (fieldPath.getJavaType() == UUID.class) {
-                return cb.notEqual(fieldPath, UUID.fromString(filter.getValue()));
-            }
-            return cb.notEqual(fieldPath, filter.getValue());
+            Comparable comparableValue = Operator.castToComparable(fieldPath.getJavaType(), filter.getValue());
+            return cb.notEqual(fieldPath, comparableValue);
         }
     },
 
@@ -209,7 +207,7 @@ public enum Operator {
         } else if (fieldType == LocalDate.class) {
             return LocalDateTime.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         } else if (fieldType == LocalDateTime.class) {
-            return LocalDateTime.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+            return LocalDateTime.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         } else if (fieldType == String.class) {
             return value;
         } else if (fieldType == UUID.class) {
