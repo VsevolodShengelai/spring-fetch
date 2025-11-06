@@ -2,6 +2,7 @@ package ru.standardsolutions.dto.generic;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -27,12 +28,14 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 @EqualsAndHashCode
 @ToString
 @Schema(description = "Параметризуемый DTO для fetch-запросов с фильтрацией и сортировкой")
-public class GenericFetchRequestDto<F extends Filters, S extends Enum<S>> {
+public class GenericFetchRequestDto<F extends Filters, S extends Sortable> {
 
     @Schema(description = "Фильтры для поиска", requiredMode = NOT_REQUIRED)
     private final F filters;
 
-    @Schema(description = "Параметры сортировки", requiredMode = NOT_REQUIRED)
+    @ArraySchema(schema = @Schema(description = "Параметр сортировки", requiredMode = NOT_REQUIRED),
+            arraySchema = @Schema(description = "Параметры сортировки"),
+            maxItems = Short.MAX_VALUE)
     private final List<SortField<S>> sort;
 
     @Valid
@@ -57,7 +60,7 @@ public class GenericFetchRequestDto<F extends Filters, S extends Enum<S>> {
     @ToString
     @EqualsAndHashCode
     @Schema(description = "Поле сортировки")
-    public static class SortField<S> {
+    public static class SortField<S extends Sortable> {
 
         @NotNull
         @Schema(description = "Имя поля сортировки", requiredMode = REQUIRED)

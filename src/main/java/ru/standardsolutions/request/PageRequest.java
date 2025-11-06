@@ -22,13 +22,13 @@ public class PageRequest {
     @NotNull
     @Min(value = 1, message = "Номер страницы не может быть меньше {value}")
     @Max(value = Integer.MAX_VALUE, message = "Номер страницы не может быть больше {value}")
-    @Schema(description = "Номер страницы")
+    @Schema(description = "Номер страницы", defaultValue = "1")
     private final Integer number;
 
     @NotNull
     @Min(value = 1, message = "Размер страницы не может быть меньше {value}")
-    @Max(value = Integer.MAX_VALUE, message = "Размер страницы не может быть больше {value}")
-    @Schema(description = "Размер страницы")
+    @Max(value = 100, message = "Размер страницы не может быть больше {value}")
+    @Schema(description = "Размер страницы", defaultValue = "50")
     private final Integer size;
 
     @JsonCreator
